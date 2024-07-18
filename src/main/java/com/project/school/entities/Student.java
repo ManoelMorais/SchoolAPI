@@ -23,7 +23,7 @@ public class Student implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
     @NotNull
@@ -37,6 +37,9 @@ public class Student implements Serializable {
     private int age;
 
     private Long nota;
+
+    @Column(nullable = true, unique = true)
+    private String password;
 
     public Student() {
     }

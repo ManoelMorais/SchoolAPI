@@ -2,10 +2,11 @@ package com.project.school.controller;
 
 import com.project.school.entities.Student;
 import com.project.school.service.StudentService;
-import lombok.AllArgsConstructor;
+import com.project.school.service.generatePassword;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import lombok.AllArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,28 +24,64 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
-    public Student getStudentById(@PathVariable UUID id) {
-        return studentService.getStudentById(id);
+    public ResponseEntity<Student> getStudentById(@PathVariable UUID id) {
+        try {
+            Student student = studentService.getStudentById(id);
+            if (student == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            return new ResponseEntity<>(student, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("Error getting student: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/create")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-        Student savedStudent = studentService.saveStudent(student);
-        return new ResponseEntity<>(savedStudent, HttpStatus.CREATED);
+        try {
+            if (studentService.getStudentById(student.getId()) != null) {
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            }
+            generatePassword passwordGenerator = new generatePassword();
+            String generatedPassword = passwordGenerator.Password(generatePassword.UserType.STUDENT);
+            student.setPassword(generatedPassword);
+            Student savedStudent = studentService.saveStudent(student);
+            return new ResponseEntity<>(savedStudent, HttpStatus.CREATED);
+        } catch (Exception e) {
+            System.out.println("Error creating student: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Student> updateStudent(@PathVariable UUID id, @RequestBody Student student) {
-        Student updatedStudent = studentService.updateStudent(id, student);
-        if (updatedStudent == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            Student studentExists = studentService.getStudentById(id);
+            if (studentExists == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            Student updatedStudent = studentService.updateStudent(id, student);
+            return new ResponseEntity<>(updatedStudent, HttpStatus.OK);
+        } catch (Exception e) {
+            System.out.println("Error updating student: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(updatedStudent, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteStudent(@PathVariable UUID id) {
-        studentService.deleteStudent(id);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<String> deleteStudent(@PathVariable UUID id) {
+        try {
+            Student studentExists = studentService.getStudentById(id);
+            if (studentExists == null) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+            studentService.deleteStudent(id);
+            return ResponseEntity.status(HttpStatus.OK).body("Student deleted successfully");
+        } catch (Exception e) {
+            System.out.println("Error deleting student: " + e.getMessage());
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+
 }

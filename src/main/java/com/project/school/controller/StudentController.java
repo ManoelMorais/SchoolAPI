@@ -1,8 +1,10 @@
 package com.project.school.controller;
 
+import com.project.school.DTO.StudentNotaDTO;
 import com.project.school.entities.Student;
+import com.project.school.config.StudentNotaService;
 import com.project.school.service.StudentService;
-import com.project.school.service.generatePassword;
+import com.project.school.config.generatePassword;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import java.util.UUID;
 public class StudentController {
 
     private final StudentService studentService;
+    private final StudentNotaService studentNotaService;
 
     @GetMapping
     public List<Student> getAllStudents() {
@@ -24,13 +27,15 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getStudentById(@PathVariable UUID id) {
+    public ResponseEntity<StudentNotaDTO> getStudentById(@PathVariable UUID id) {
         try {
             Student student = studentService.getStudentById(id);
             if (student == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return new ResponseEntity<>(student, HttpStatus.OK);
+            return studentNotaService.getStudentNotaById(id)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
         } catch (Exception e) {
             System.out.println("Error getting student: " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -40,9 +45,6 @@ public class StudentController {
     @PostMapping("/create")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
         try {
-            if (studentService.getStudentById(student.getId()) != null) {
-                return new ResponseEntity<>(HttpStatus.CONFLICT);
-            }
             generatePassword passwordGenerator = new generatePassword();
             String generatedPassword = passwordGenerator.Password(generatePassword.UserType.STUDENT);
             student.setPassword(generatedPassword);
@@ -83,5 +85,4 @@ public class StudentController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 }

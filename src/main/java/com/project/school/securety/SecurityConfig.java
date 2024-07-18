@@ -19,6 +19,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/students/**").permitAll()
+                        .requestMatchers("/students/notas/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(httpBasicConfigurer -> httpBasicConfigurer.realmName("Manoel"))

@@ -6,9 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.aspectj.weaver.ast.Not;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -36,11 +38,13 @@ public class Student implements Serializable {
     @NotNull
     private int age;
 
-    private Long nota;
-
     @Column(nullable = true, unique = true)
     private String password;
 
+    @OneToMany(mappedBy = "student")
+    private List<Nota> notas;
+
     public Student() {
     }
+
 }

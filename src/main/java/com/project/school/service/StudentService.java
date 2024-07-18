@@ -40,7 +40,6 @@ public class StudentService {
         studentToUpdate.setName(student.getName());
         studentToUpdate.setAge(student.getAge());
         studentToUpdate.setResponse(student.getResponse());
-        studentToUpdate.setNota(student.getNota());
         return studentRepository.save(studentToUpdate);
     }
 

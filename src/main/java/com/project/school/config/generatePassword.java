@@ -1,4 +1,4 @@
-package com.project.school.service;
+package com.project.school.config;
 
 import lombok.Getter;
 
@@ -8,6 +8,7 @@ public class generatePassword {
 
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+    @Getter
     public enum UserType {
         STUDENT(7),
         TEACHER(11),
@@ -19,9 +20,6 @@ public class generatePassword {
             this.passwordLength = passwordLength;
         }
 
-        public int getPasswordLength() {
-            return passwordLength;
-        }
     }
 
     public String Password(UserType userType) {

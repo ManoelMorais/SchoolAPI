@@ -1,8 +1,6 @@
 package com.project.school.controller;
 
-import com.project.school.DTO.StudentNotaDTO;
 import com.project.school.entities.Student;
-import com.project.school.config.StudentNotaService;
 import com.project.school.service.StudentService;
 import com.project.school.config.generatePassword;
 import org.springframework.http.HttpStatus;
@@ -19,7 +17,6 @@ import java.util.UUID;
 public class StudentController {
 
     private final StudentService studentService;
-    private final StudentNotaService studentNotaService;
 
     @GetMapping
     public List<Student> getAllStudents() {
@@ -27,15 +24,13 @@ public class StudentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StudentNotaDTO> getStudentById(@PathVariable UUID id) {
+    public ResponseEntity<Student> getStudentById(@PathVariable UUID id) {
         try {
             Student student = studentService.getStudentById(id);
             if (student == null) {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
-            return studentNotaService.getStudentNotaById(id)
-                    .map(ResponseEntity::ok)
-                    .orElse(ResponseEntity.notFound().build());
+            return new ResponseEntity<>(student, HttpStatus.OK);
         } catch (Exception e) {
             System.out.println("Error getting student: " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
